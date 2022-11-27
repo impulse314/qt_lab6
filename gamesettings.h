@@ -27,7 +27,7 @@ private:
     Ui::GameSettings *ui;
 
     GameField *m_field;
-
+    void readSaveFile();
 };
 
 #endif // GAMESETTINGS_H

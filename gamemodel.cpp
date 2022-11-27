@@ -72,7 +72,7 @@ ItemType GameModel::check_win_vline() {
                 continue;
             }
             count_item++;
-            if (count_item >= 3)
+            if (count_item >= 5)
                 return currentItem;
         }
     }

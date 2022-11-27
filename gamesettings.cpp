@@ -1,7 +1,19 @@
+// ЗАДАЧИ к лекции 6:
+// 1) вместо Setting сделать меню с кнопками "играть" и "статистика" ++сделано
+// 2) статистика считывается с файла ++окей, файлик прочитали, осталось научиться туда записывать
+// 3) после победы запрашивать имя победителя и увеличивать счетчик в статистике --TO DO
+// 4) после нажатия "играть" открывается поле 10 на 10 ++сделано
+// 5) после окончания игры открывается окно меню ++я надеюсь это так работает, так что сделано
+// 6) игра 5 в ряд -- неправильно считается количество Х/О на поле, по горизонтали в первом может засчитать два в ряд как победу
+// по вертикали считается только 6 в ряд
+// 7) попробовать написать хороший код --чо
+
 #include "gamesettings.h"
 #include "ui_gamesettings.h"
 #include <QMessageBox>
 #include "gamefield.h"
+#include <QTextStream>
+#include <QFile>
 
 GameSettings::GameSettings(QWidget *parent) :
     QWidget(parent),
@@ -12,7 +24,7 @@ GameSettings::GameSettings(QWidget *parent) :
             this, SLOT(start_pressed()));
 
     m_field = nullptr;
-
+    readSaveFile();
     ui->game_status->setText("игра не начата");
 }
 
@@ -34,26 +46,40 @@ void GameSettings::start_pressed() {
             this, SLOT(field_closed()));
 
     m_field->show();
-
     ui->game_status->setText("игра начата");
     ui->start->setEnabled(false);
-
-    // ЗАДАЧИ к лекции 6:
-    // 1) вместо Setting сделать меню с кнопками "играть" и "статистика" --сделано
-    // 2) статистика считывается с файла.
-    // 3) после победы запрашивать имя победителя и увеличивать счетчик в статистике
-    // 4) после нажатия "играть" открывается поле 10 на 10
-    // 5) после окончания игры открывается окно меню
-    // 6) игра 5 в ряд
-    // 7) попробовать написать хороший код,
+    this->setVisible(false);
 }
 
 void GameSettings::field_closed() {
     m_field = nullptr;
-
+    this->setVisible(true);
     ui->start->setEnabled(true);
 }
 
 void GameSettings::status_changed(QString status) {
     ui->game_status->setText(status);
+}
+
+void GameSettings::readSaveFile(){
+    QFile file("C:\\statistics.txt");
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QTextStream in(&file);
+    QList< QStringList > lists;
+    QString line;
+    do {
+        line = in.readLine();
+        lists << line.split("\t");
+    } while (!line.isNull());
+
+    ui->tableWidget->setRowCount(2);
+    ui->tableWidget->setColumnCount(2);
+    ui->tableWidget->setVerticalHeaderLabels(lists[0]);
+    ui->tableWidget->setHorizontalHeaderLabels({"Победа", "Поражение"});
+
+    for ( int row = 0; row < 2; ++row ) {
+        for ( int column = 0; column < lists[row].size(); ++column ) {
+            ui->tableWidget->setItem(row, column, new QTableWidgetItem(lists[row+1][column]));
+        }
+    }
 }
